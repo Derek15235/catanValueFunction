@@ -2,7 +2,8 @@
 
 Mirrors train_logreg.py structure exactly so results are directly comparable.
 Tunes max_depth on the val set, uses early stopping to find n_estimators.
-Saves metrics.json, pipeline_*.joblib, and feature_importance_*.csv.
+Reports accuracy / log-loss / ECE (with bootstrap CIs) for each VP bucket and overall.
+Uses early stopping on the val set to pick n_estimators.
 
 Usage:
     uv run python train_gbt.py
@@ -31,29 +32,20 @@ N_BOOTSTRAP = 1000
 BOOTSTRAP_SEED = 42
 VP_BUCKETS = [(2, 4), (4, 6), (6, 8), (8, 10), (10, 12), (12, 15), (15, 99)]
 
-# Fixed XGBoost hyperparameters — only max_depth is tuned
-FIXED_PARAMS = dict(
-    n_estimators=500,
-    learning_rate=0.05,
-    subsample=0.8,
-    colsample_bytree=0.8,
-    tree_method="hist",
-    eval_metric="logloss",
-    random_state=0,
-    n_jobs=-1,
-)
 DEPTH_GRID = [4, 6, 8]
 EARLY_STOPPING_ROUNDS = 20
 
 
-def ece(y_true: np.ndarray, y_prob: np.ndarray, n_bins: int = 10) -> float:
+def ece(y_true, y_prob, n_bins=10):
     bins = np.linspace(0, 1, n_bins + 1)
     ece_val = 0.0
     for lo, hi in zip(bins[:-1], bins[1:]):
         mask = (y_prob >= lo) & (y_prob < hi)
         if mask.sum() == 0:
             continue
-        ece_val += mask.mean() * abs(y_true[mask].mean() - y_prob[mask].mean())
+        acc = y_true[mask].mean()
+        conf = y_prob[mask].mean()
+        ece_val += mask.mean() * abs(acc - conf)
     return float(ece_val)
 
 
@@ -103,8 +95,6 @@ def train_xgb(X_tr, y_tr, X_val, y_val, max_depth: int) -> XGBClassifier:
 
 
 def make_pipeline(clf) -> Pipeline:
-    # XGBoost is scale-invariant; passthrough keeps the Pipeline API consistent
-    # with train_logreg.py so the lookahead agent can use both interchangeably.
     return Pipeline([("passthrough", FunctionTransformer()), ("clf", clf)])
 
 
@@ -144,7 +134,6 @@ def main() -> None:
     X_test  = test_df[feature_cols].values.astype(np.float32)
     y_test  = test_df["label"].values
 
-    # --- Tune max_depth on val set ---
     print("\nTuning max_depth...")
     best_depth, best_acc, best_clf = None, -1.0, None
     for depth in DEPTH_GRID:
@@ -158,7 +147,7 @@ def main() -> None:
     print(f"  → best max_depth={best_depth}")
     clf_unified = best_clf
 
-    # --- Unified model ---
+    # Unified model
     print("\n=== Unified model ===")
     print("  top features (gain):")
     print_top_importance(clf_unified, feature_cols)
@@ -173,7 +162,7 @@ def main() -> None:
     joblib.dump(pipe_unified, RESULTS_DIR / "pipeline_unified.joblib")
     save_importance_csv(clf_unified, feature_cols, "unified")
 
-    # --- Per-bucket models ---
+    # Per-bucket models
     print("\n=== Per-bucket models (test set) ===")
     bucket_results = []
     for lo, hi in VP_BUCKETS:
@@ -206,7 +195,6 @@ def main() -> None:
         joblib.dump(make_pipeline(clf), RESULTS_DIR / f"pipeline_{label}.joblib")
         save_importance_csv(clf, feature_cols, label)
 
-    # --- Unified model sliced by bucket ---
     print("\n=== Unified model sliced by VP bucket (test set) ===")
     unified_slice_results = []
     for lo, hi in VP_BUCKETS:
@@ -221,7 +209,6 @@ def main() -> None:
         print_result(r)
         unified_slice_results.append(_serializable(r))
 
-    # --- Save metrics.json ---
     output = {
         "best_depth": best_depth,
         "unified": unified_results,
