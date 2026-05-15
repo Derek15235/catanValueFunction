@@ -136,7 +136,6 @@ def main() -> None:
     y_test = test_df["label"].values
 
     def _make_pipeline(clf: XGBClassifier) -> Pipeline:
-        # XGBoost is scale-invariant; passthrough keeps Pipeline API consistent with LR.
         return Pipeline([("passthrough", FunctionTransformer()), ("clf", clf)])
 
     def _train_xgb(X_tr: np.ndarray, y_tr: np.ndarray,
@@ -171,7 +170,6 @@ def main() -> None:
         )
         pd.DataFrame(rows).to_csv(RESULTS_DIR / f"importance_{name}.csv", index=False)
 
-    # --- Tune max_depth on val set ---
     print("\nTuning max_depth...")
     best_depth, best_acc, clf_unified = None, -1.0, None
     for depth in DEPTH_GRID:
@@ -183,7 +181,6 @@ def main() -> None:
 
     print(f"  → best max_depth={best_depth}")
 
-    # --- Unified model ---
     print("\n=== Unified model ===")
     print("  top features (gain):")
     print_top_importance(clf_unified, feature_cols)
@@ -197,7 +194,6 @@ def main() -> None:
     joblib.dump(_make_pipeline(clf_unified), RESULTS_DIR / "pipeline_unified.joblib")
     _save_importance_csv(clf_unified, "unified")
 
-    # --- Per-bucket models ---
     print("\n=== Per-bucket models (test set) ===")
     bucket_results = []
     for lo, hi in VP_BUCKETS:
@@ -230,7 +226,6 @@ def main() -> None:
         joblib.dump(_make_pipeline(clf), RESULTS_DIR / f"pipeline_{label}.joblib")
         _save_importance_csv(clf, label)
 
-    # --- Unified model sliced by bucket (for comparison) ---
     print("\n=== Unified model sliced by VP bucket (test set) ===")
     unified_slice_results = []
     for lo, hi in VP_BUCKETS:
@@ -245,7 +240,6 @@ def main() -> None:
         print_result(r)
         unified_slice_results.append(_serializable(r))
 
-    # --- Save metrics.json ---
     output = {
         "best_depth": best_depth,
         "unified": unified_results,
