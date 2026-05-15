@@ -11,4 +11,5 @@ __pycache__/
 data/raw/
 data/snapshots.parquet
 data/splits.json
-tests/
+tests/results/
+data/
