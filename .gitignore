@@ -13,3 +13,4 @@ data/snapshots.parquet
 data/splits.json
 tests/results/
 data/
+tests/
