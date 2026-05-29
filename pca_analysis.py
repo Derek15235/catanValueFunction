@@ -1,9 +1,9 @@
 """pca_analysis.py — PCA + k-means on Catan game state snapshots.
 
 Produces three plots in results/pca/:
-  1. pca_by_phase.png        — PCA scatter colored by VP phase
-  2. pca_kmeans_winrate.png  — PCA scatter colored by k-means cluster win rate
-  3. pca_cluster_phases.png  — bar chart: phase composition of each cluster
+  1. pca_by_phase.png: PCA scatter colored by VP phase
+  2. pca_kmeans_winrate.png: PCA scatter colored by k-means cluster win rate
+  3. pca_cluster_phases.png: bar chart phase composition of each cluster
 
 Usage:
     uv run python pca_analysis.py
