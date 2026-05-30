@@ -14,11 +14,13 @@ import argparse
 import hashlib
 import json
 import os
+import random
 import sys
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from pathlib import Path
 
 import joblib
+import numpy as np
 from scipy.stats import binomtest
 from tqdm import tqdm
 
@@ -61,6 +63,24 @@ def stable_seed(key_str: str) -> int:
     return int.from_bytes(digest[:8], "big")
 
 
+# Per-worker model cache, populated once by _init_worker. Keyed by family ("lr"/"gbt")
+# so lr-unified + lr-per_bucket share the same loaded pipelines.
+_MODEL_CACHE: dict = {}
+
+
+def _init_worker(agent_names):
+    families = {AGENT_FAMILIES[name][0] for name in agent_names}
+    for family in families:
+        family_dir = Path(f"results/{family}")
+        unified = joblib.load(family_dir / "pipeline_unified.joblib")
+        bucket_models = {}
+        for low, high in VP_BUCKETS:
+            p = family_dir / f"pipeline_vp_{low:02d}-{min(high, 15):02d}.joblib"
+            if p.exists():
+                bucket_models[(low, high)] = joblib.load(p)
+        _MODEL_CACHE[family] = {"unified": unified, "bucket_models": bucket_models}
+
+
 def loss_mode_within_1ply(trace, agent_color, winner_color) -> bool:
     # Return true iff opponent reached 15 VP in the window between agent's last END_TURN
     # and opponent's next END_TURN. Pure function over the per-tick trace.
@@ -96,16 +116,21 @@ def loss_mode_within_1ply(trace, agent_color, winner_color) -> bool:
 
 def play_one_game(pairing_label, seat_assignment, replicate_idx, agent_spec, baseline_class):
     seed = stable_seed(f"{pairing_label}|{seat_assignment}|{replicate_idx}")
+    # Re-seed global RNG every game so worker reuse stays byte-deterministic
+    # (Game.__init__ mutates global RNG — Phase 1 pitfall).
+    random.seed(seed)
+    np.random.seed(seed % (2**32))
+
     family = agent_spec["family"]
     mode = agent_spec["mode"]
-    family_dir = Path(f"results/{family}")
+    cache = _MODEL_CACHE[family]
 
     if mode == "unified":
-        pipe = joblib.load(family_dir / "pipeline_unified.joblib")
+        pipe = cache["unified"]
         router = None
         agent_factory = lambda color: make_player(color, pipe, bucket_router=None)
     else:
-        router = BucketRouter(family_dir)
+        router = BucketRouter(cache["unified"], cache["bucket_models"])
         agent_factory = lambda color: make_player(color, None, bucket_router=router)
 
     agent_color = Color.RED if seat_assignment == "RED" else Color.BLUE
@@ -312,7 +337,9 @@ def main():
 
     results = {}
     with ProcessPoolExecutor(
-        max_workers=args.workers, max_tasks_per_child=1
+        max_workers=args.workers,
+        initializer=_init_worker,
+        initargs=(agent_list,),
     ) as executor:
         for agent_name, baseline_name in pairings:
             agg = run_pairing(agent_name, baseline_name, n_per_pairing, executor)
