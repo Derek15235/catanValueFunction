@@ -21,29 +21,24 @@ VP_BUCKETS = [(2, 4), (4, 6), (6, 8), (8, 10), (10, 12), (12, 15), (15, 99)]
 
 
 class BucketRouter:
-    def __init__(self, unified, bucket_models):
-        self.unified = unified
-        self.bucket_models = bucket_models
-        self.unified_fallback_uses = 0
-        self.total_picks = 0
-
-    @classmethod
-    def from_dir(cls, family_dir):
+    def __init__(self, family_dir):
         family_dir = Path(family_dir)
         unified_path = family_dir / "pipeline_unified.joblib"
         if not unified_path.exists():
             raise FileNotFoundError(
                 f"required unified pipeline missing at {unified_path}"
             )
-        unified = joblib.load(unified_path)
+        # Load in all models (both unified and bucket)
+        self.unified = joblib.load(unified_path)
 
-        bucket_models = {}
+        self.bucket_models = {}
         for low, high in VP_BUCKETS:
             p = family_dir / f"pipeline_vp_{low:02d}-{min(high, 15):02d}.joblib"
             if p.exists():
-                bucket_models[(low, high)] = joblib.load(p)
-
-        return cls(unified, bucket_models)
+                self.bucket_models[(low, high)] = joblib.load(p)
+        
+        self.unified_fallback_uses = 0
+        self.total_picks = 0
 
     def pick(self, game):
         ps = game.state.player_state
