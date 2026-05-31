@@ -155,7 +155,7 @@ def main() -> None:
         )
         pd.DataFrame(rows).to_csv(RESULTS_DIR / f"coef_{name}.csv", index=False)
 
-    # --- Tune C on val set ---
+    # Tune C on val set 
     print("\nTuning C (regularization strength)...")
     best_C, best_acc, pipe_unified = None, -1.0, None
     for C in [0.1, 1.0, 10.0, 100.0]:
@@ -182,7 +182,7 @@ def main() -> None:
     joblib.dump(pipe_unified, RESULTS_DIR / "pipeline_unified.joblib")
     _save_coef_csv(pipe_unified, "unified")
 
-    # --- Per-bucket models ---
+    # Per-bucket models 
     print("\n=== Per-bucket models (test set) ===")
     bucket_results = []
     for lo, hi in VP_BUCKETS:
@@ -213,7 +213,7 @@ def main() -> None:
         joblib.dump(pipe, RESULTS_DIR / f"pipeline_{label}.joblib")
         _save_coef_csv(pipe, label)
 
-    # --- Unified model sliced by bucket (for comparison) ---
+    # Unified model sliced by bucket (for comparison)
     print("\n=== Unified model sliced by VP bucket (test set) ===")
     unified_slice_results = []
     for lo, hi in VP_BUCKETS:
@@ -228,7 +228,7 @@ def main() -> None:
         print_result(r)
         unified_slice_results.append(_serializable(r))
 
-    # --- Save metrics.json ---
+    # Save metrics.json 
     output = {
         "best_C": best_C,
         "unified": unified_results,
