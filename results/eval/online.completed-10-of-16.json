@@ -1,0 +1,200 @@
+{
+  "lr-unified": {
+    "RandomPlayer": {
+      "n_games": 600,
+      "n_resolved": 314,
+      "n_truncations": 286,
+      "truncation_rate": 0.4766666666666667,
+      "wins": 152,
+      "win_rate": 0.4840764331210191,
+      "wilson_lo": 0.4293280668291628,
+      "wilson_hi": 0.5392097065717535,
+      "unified_fallback_rate": null,
+      "loss_mode": {
+        "n_resolved_losses": 162,
+        "n_loss_within_1ply": 7,
+        "n_loss_hidden_vp": 129
+      }
+    },
+    "WeightedRandomPlayer": {
+      "n_games": 600,
+      "n_resolved": 378,
+      "n_truncations": 222,
+      "truncation_rate": 0.37,
+      "wins": 147,
+      "win_rate": 0.3888888888888889,
+      "wilson_lo": 0.3410972461231302,
+      "wilson_hi": 0.4389161650464388,
+      "unified_fallback_rate": null,
+      "loss_mode": {
+        "n_resolved_losses": 231,
+        "n_loss_within_1ply": 3,
+        "n_loss_hidden_vp": 192
+      }
+    },
+    "VictoryPointPlayer": {
+      "n_games": 600,
+      "n_resolved": 380,
+      "n_truncations": 220,
+      "truncation_rate": 0.36666666666666664,
+      "wins": 145,
+      "win_rate": 0.3815789473684211,
+      "wilson_lo": 0.33415298062895654,
+      "wilson_hi": 0.4313752135465398,
+      "unified_fallback_rate": null,
+      "loss_mode": {
+        "n_resolved_losses": 235,
+        "n_loss_within_1ply": 5,
+        "n_loss_hidden_vp": 190
+      }
+    },
+    "AlphaBetaPlayer": {
+      "n_games": 600,
+      "n_resolved": 596,
+      "n_truncations": 4,
+      "truncation_rate": 0.006666666666666667,
+      "wins": 14,
+      "win_rate": 0.02348993288590604,
+      "wilson_lo": 0.014043113265853766,
+      "wilson_hi": 0.039040011203894234,
+      "unified_fallback_rate": null,
+      "loss_mode": {
+        "n_resolved_losses": 582,
+        "n_loss_within_1ply": 175,
+        "n_loss_hidden_vp": 256
+      }
+    }
+  },
+  "lr-per_bucket": {
+    "RandomPlayer": {
+      "n_games": 600,
+      "n_resolved": 351,
+      "n_truncations": 249,
+      "truncation_rate": 0.415,
+      "wins": 237,
+      "win_rate": 0.6752136752136753,
+      "wilson_lo": 0.6245550944860027,
+      "wilson_hi": 0.7220785835762712,
+      "unified_fallback_rate": 0.0,
+      "loss_mode": {
+        "n_resolved_losses": 114,
+        "n_loss_within_1ply": 3,
+        "n_loss_hidden_vp": 94
+      }
+    },
+    "WeightedRandomPlayer": {
+      "n_games": 600,
+      "n_resolved": 417,
+      "n_truncations": 183,
+      "truncation_rate": 0.305,
+      "wins": 247,
+      "win_rate": 0.592326139088729,
+      "wilson_lo": 0.5445268870866856,
+      "wilson_hi": 0.6384398772044889,
+      "unified_fallback_rate": 0.0,
+      "loss_mode": {
+        "n_resolved_losses": 170,
+        "n_loss_within_1ply": 1,
+        "n_loss_hidden_vp": 148
+      }
+    },
+    "VictoryPointPlayer": {
+      "n_games": 600,
+      "n_resolved": 402,
+      "n_truncations": 198,
+      "truncation_rate": 0.33,
+      "wins": 233,
+      "win_rate": 0.5796019900497512,
+      "wilson_lo": 0.5308178601129163,
+      "wilson_hi": 0.6268791878574242,
+      "unified_fallback_rate": 0.0,
+      "loss_mode": {
+        "n_resolved_losses": 169,
+        "n_loss_within_1ply": 4,
+        "n_loss_hidden_vp": 133
+      }
+    },
+    "AlphaBetaPlayer": {
+      "n_games": 600,
+      "n_resolved": 593,
+      "n_truncations": 7,
+      "truncation_rate": 0.011666666666666667,
+      "wins": 7,
+      "win_rate": 0.011804384485666104,
+      "wilson_lo": 0.005729560830240614,
+      "wilson_hi": 0.024163568336669588,
+      "unified_fallback_rate": 0.0,
+      "loss_mode": {
+        "n_resolved_losses": 586,
+        "n_loss_within_1ply": 192,
+        "n_loss_hidden_vp": 270
+      }
+    }
+  },
+  "xgb-unified": {
+    "RandomPlayer": {
+      "n_games": 600,
+      "n_resolved": 541,
+      "n_truncations": 59,
+      "truncation_rate": 0.09833333333333333,
+      "wins": 518,
+      "win_rate": 0.9574861367837338,
+      "wilson_lo": 0.9370150368474263,
+      "wilson_hi": 0.9715061338274783,
+      "unified_fallback_rate": null,
+      "loss_mode": {
+        "n_resolved_losses": 23,
+        "n_loss_within_1ply": 0,
+        "n_loss_hidden_vp": 23
+      }
+    },
+    "WeightedRandomPlayer": {
+      "n_games": 600,
+      "n_resolved": 550,
+      "n_truncations": 50,
+      "truncation_rate": 0.08333333333333333,
+      "wins": 505,
+      "win_rate": 0.9181818181818182,
+      "wilson_lo": 0.8922709784701807,
+      "wilson_hi": 0.9382916178718977,
+      "unified_fallback_rate": null,
+      "loss_mode": {
+        "n_resolved_losses": 45,
+        "n_loss_within_1ply": 6,
+        "n_loss_hidden_vp": 39
+      }
+    },
+    "VictoryPointPlayer": {
+      "n_games": 600,
+      "n_resolved": 537,
+      "n_truncations": 63,
+      "truncation_rate": 0.105,
+      "wins": 479,
+      "win_rate": 0.8919925512104283,
+      "wilson_lo": 0.8629016105506276,
+      "wilson_hi": 0.91551504581664,
+      "unified_fallback_rate": null,
+      "loss_mode": {
+        "n_resolved_losses": 58,
+        "n_loss_within_1ply": 6,
+        "n_loss_hidden_vp": 51
+      }
+    },
+    "AlphaBetaPlayer": {
+      "n_games": 600,
+      "n_resolved": 597,
+      "n_truncations": 3,
+      "truncation_rate": 0.005,
+      "wins": 73,
+      "win_rate": 0.12227805695142378,
+      "wilson_lo": 0.09838677643455962,
+      "wilson_hi": 0.15099924149235994,
+      "unified_fallback_rate": null,
+      "loss_mode": {
+        "n_resolved_losses": 524,
+        "n_loss_within_1ply": 170,
+        "n_loss_hidden_vp": 310
+      }
+    }
+  }
+}
