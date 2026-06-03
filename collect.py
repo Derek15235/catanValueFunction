@@ -207,10 +207,14 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(description="Collect Catanatron games into per-game parquet files.")
-    parser.add_argument("--n", type=int, default=15000, help="Target number of games (default: 15000).")
-    parser.add_argument("--test-n", type=int, default=None, help="Run only N games and exit (smoke-test mode).")
-    parser.add_argument("--workers", type=int, default=min(os.cpu_count() or 1, 8), help="Parallel worker count.")
-    parser.add_argument("--raw-dir", type=Path, default=Path("data/raw"), help="Output directory for per-game parquet files.")
+    # Target number of games (default: 15000).
+    parser.add_argument("--n", type=int, default=15000)
+    # Run only N games and exit (smoke-test mode).
+    parser.add_argument("--test-n", type=int, default=None)
+    # Parallel worker count.
+    parser.add_argument("--workers", type=int, default=min(os.cpu_count() or 1, 8))
+    # Output directory for per-game parquet files.
+    parser.add_argument("--raw-dir", type=Path, default=Path("data/raw"))
     args = parser.parse_args()
 
     result = collect_run(n=args.n, workers=args.workers, raw_dir=args.raw_dir, test_n=args.test_n)

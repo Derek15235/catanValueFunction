@@ -92,7 +92,31 @@ print("Saved pca_kmeans_winrate.png")
 
 
 composition = pd.crosstab(clusters, buckets, normalize="index")
-composition = composition[bucket_order]  
+composition = composition[bucket_order]
+
+print()
+print("Phase composition by cluster (rows sum to 1.0):")
+print(composition.to_string(float_format="%.3f"))
+
+import json
+metrics = {
+    "pc1_variance": float(pca.explained_variance_ratio_[0]),
+    "pc2_variance": float(pca.explained_variance_ratio_[1]),
+    "n_clusters": N_CLUSTERS,
+    "sample_size": SAMPLE_SIZE,
+    "clusters": [
+        {
+            "id": int(c),
+            "n": int((clusters == c).sum()),
+            "win_rate": float(win_rates[c]),
+            "phase_composition": {b: float(composition.iloc[c][b]) for b in bucket_order},
+        }
+        for c in range(N_CLUSTERS)
+    ],
+}
+(OUT_DIR / "metrics.json").write_text(json.dumps(metrics, indent=2))
+print("\nSaved metrics.json")
+
 composition.index = [f"c{c} (wr={win_rates[c]:.2f})" for c in composition.index]
 
 composition.plot(kind="bar", figsize=(9, 5), colormap="viridis", width=0.8)

@@ -53,7 +53,7 @@ def bootstrap_ci(
     metric_fn,
     n: int = N_BOOTSTRAP,
     seed: int = BOOTSTRAP_SEED,
-) -> tuple[float, float]:
+):
     rng = np.random.default_rng(seed)
     vals = []
     for _ in range(n):
@@ -63,7 +63,7 @@ def bootstrap_ci(
     return float(lo), float(hi)
 
 
-def evaluate(name: str, y_true: np.ndarray, y_prob: np.ndarray) -> dict:
+def evaluate(name: str, y_true: np.ndarray, y_prob: np.ndarray):
     acc = accuracy_score(y_true, (y_prob >= 0.5).astype(int))
     ll = log_loss(y_true, y_prob)
     ec = ece(y_true, y_prob)
@@ -86,14 +86,14 @@ def evaluate(name: str, y_true: np.ndarray, y_prob: np.ndarray) -> dict:
     }
 
 
-def print_top_coefficients(clf, feature_names: list[str], n: int = 10) -> None:
+def print_top_coefficients(clf, feature_names: list[str], n: int = 10):
     coef = clf.coef_[0]
     idx = np.argsort(np.abs(coef))[::-1][:n]
     for i in idx:
         print(f"      {feature_names[i]:<40}  {coef[i]:+.4f}")
 
 
-def print_result(r: dict) -> None:
+def print_result(r: dict):
     print(
         f"  {r['name']:<22}  n={r['n']:>8,}  "
         f"acc={r['accuracy']:.4f} [{r['acc_ci'][0]:.4f},{r['acc_ci'][1]:.4f}]  "
@@ -168,8 +168,8 @@ def main() -> None:
 
     print(f"  → best C={best_C}")
 
-    # --- Unified model ---
-    print("\n=== Unified model ===")
+    # Unified model
+    print("\n--Unified model---")
     print("  top features:")
     print_top_coefficients(pipe_unified.named_steps["clf"], feature_cols)
     unified_results = {}
@@ -183,7 +183,7 @@ def main() -> None:
     _save_coef_csv(pipe_unified, "unified")
 
     # Per-bucket models 
-    print("\n=== Per-bucket models (test set) ===")
+    print("\n---Per-bucket models (test set)---")
     bucket_results = []
     for lo, hi in VP_BUCKETS:
         label = bucket_label(lo, hi)
@@ -214,7 +214,7 @@ def main() -> None:
         _save_coef_csv(pipe, label)
 
     # Unified model sliced by bucket (for comparison)
-    print("\n=== Unified model sliced by VP bucket (test set) ===")
+    print("\n---Unified model sliced by VP bucket (test set)---")
     unified_slice_results = []
     for lo, hi in VP_BUCKETS:
         label = bucket_label(lo, hi)
@@ -237,7 +237,6 @@ def main() -> None:
     }
     out_path = RESULTS_DIR / "metrics.json"
     out_path.write_text(json.dumps(output, indent=2))
-    print(f"\nSaved to {RESULTS_DIR}/: metrics.json, pipeline_*.joblib, coef_*.csv")
 
 
 if __name__ == "__main__":

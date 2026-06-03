@@ -1,4 +1,4 @@
-"""eval.py — Phase 3 offline evaluation with cluster-bootstrap CIs.
+"""eval.py: offline evaluation with cluster-bootstrap CIs.
 
 Loads persisted LR + GBT pipelines from results/{lr,gbt}/, re-predicts on
 the test split only, and writes results/eval/offline.json + 2 reliability PNGs.
@@ -57,7 +57,7 @@ GBT_DIR: Path = Path("results/gbt")
 EVAL_DIR: Path = Path("results/eval")
 
 
-# ---------- Metrics ----------
+# Metrics 
 def ece(y_true: np.ndarray, y_prob: np.ndarray, n_bins: int = RELIABILITY_BINS) -> float:
     """Expected Calibration Error — n_bins equal-width bins on [0, 1].
     Lifted verbatim from train_logreg.py:37.

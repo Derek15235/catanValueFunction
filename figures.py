@@ -1,4 +1,4 @@
-"""figures.py — JSON->PDF figure regenerator for the CS229 report.
+"""figures.py — JSON->PDF figure regenerator for report
 
 Reads results/eval/offline.json and results/eval/online.json and writes three
 PDFs to results/figures/:
@@ -26,9 +26,7 @@ from pathlib import Path
 # removes the only non-deterministic element in the output.
 _PDF_CREATION_DATE = datetime(2024, 1, 1, tzinfo=timezone.utc)
 
-# ---------------------------------------------------------------------------
 # Module-level constants
-# ---------------------------------------------------------------------------
 
 OFFLINE_JSON = Path("results/eval/offline.json")
 ONLINE_JSON  = Path("results/eval/online.json")
@@ -53,13 +51,10 @@ BASELINES = [
     "AlphaBetaPlayer",
 ]
 
-# ---------------------------------------------------------------------------
 # Data loaders
-# ---------------------------------------------------------------------------
-
 
 def load_offline() -> dict:
-    """Load offline.json, hard-failing with a clear message if missing."""
+    # oad offline.json, hard-failing with a clear message if missing
     if not OFFLINE_JSON.exists():
         raise FileNotFoundError(
             f"{OFFLINE_JSON} missing — run `uv run python eval.py` first"
@@ -67,19 +62,17 @@ def load_offline() -> dict:
     return json.loads(OFFLINE_JSON.read_text())
 
 
-def load_online() -> dict:
-    """Load online.json, hard-failing with a clear message if missing."""
+def load_online():
+    # Load online.json, hard-failing with a clear message if missing
     if not ONLINE_JSON.exists():
         raise FileNotFoundError(
-            f"{ONLINE_JSON} missing — run `uv run python eval_online.py` first"
+            f"{ONLINE_JSON} missing"
         )
     return json.loads(ONLINE_JSON.read_text())
 
 
-def get_cell(
-    offline: dict, estimator: str, bucket_mode: str, bucket: str
-) -> dict | None:
-    """Return the first cell matching (estimator, bucket_mode, bucket), or None."""
+def get_cell(offline: dict, estimator: str, bucket_mode: str, bucket: str):
+    # Return the first cell matching (estimator, bucket_mode, bucket), or None
     for cell in offline["cells"]:
         if (
             cell["estimator"] == estimator
@@ -90,9 +83,7 @@ def get_cell(
     return None
 
 
-# ---------------------------------------------------------------------------
 # Figure functions
-# ---------------------------------------------------------------------------
 
 
 def fig02_accuracy(offline: dict) -> Path:
@@ -185,7 +176,7 @@ def fig02_accuracy(offline: dict) -> Path:
 
 
 def fig07_online(online: dict) -> Path:
-    """FIG-07: grouped bar chart — online win rates, agent × baseline.
+    """FIG-07: grouped bar chart — online win rates, agent x baseline.
 
     Four agents × four baselines.  Wilson 95% CI error bars.
     Per-baseline n_resolved annotated once below the x-axis (first agent).
@@ -294,13 +285,7 @@ def fig_roc(offline: dict) -> Path:
     plt.close(fig)
     return out
 
-
-# ---------------------------------------------------------------------------
-# Entry point
-# ---------------------------------------------------------------------------
-
-
-def main() -> None:
+def main():
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
     offline = load_offline()
     online  = load_online()
