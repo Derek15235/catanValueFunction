@@ -57,7 +57,7 @@ def bootstrap_ci(
     metric_fn,
     n: int = N_BOOTSTRAP,
     seed: int = BOOTSTRAP_SEED,
-) -> tuple[float, float]:
+):
     rng = np.random.default_rng(seed)
     vals = []
     for _ in range(n):
@@ -67,7 +67,7 @@ def bootstrap_ci(
     return float(lo), float(hi)
 
 
-def evaluate(name: str, y_true: np.ndarray, y_prob: np.ndarray) -> dict:
+def evaluate(name: str, y_true: np.ndarray, y_prob: np.ndarray):
     acc = accuracy_score(y_true, (y_prob >= 0.5).astype(int))
     ll = log_loss(y_true, y_prob)
     ec = ece(y_true, y_prob)
@@ -90,14 +90,14 @@ def evaluate(name: str, y_true: np.ndarray, y_prob: np.ndarray) -> dict:
     }
 
 
-def print_top_importance(clf, feature_names: list[str], n: int = 10) -> None:
+def print_top_importance(clf, feature_names: list[str], n: int = 10):
     imp = clf.feature_importances_
     idx = np.argsort(imp)[::-1][:n]
     for i in idx:
         print(f"      {feature_names[i]:<40}  {imp[i]:.4f}")
 
 
-def print_result(r: dict) -> None:
+def print_result(r: dict):
     print(
         f"  {r['name']:<22}  n={r['n']:>8,}  "
         f"acc={r['accuracy']:.4f} [{r['acc_ci'][0]:.4f},{r['acc_ci'][1]:.4f}]  "
@@ -110,8 +110,8 @@ def bucket_label(lo: int, hi: int) -> str:
     return f"vp_{lo:02d}-{min(hi,15):02d}"
 
 
-def main() -> None:
-    print("Loading data...")
+def main():
+    print("Loading Data")
     df = pd.read_parquet(DATA_PATH)
     splits = json.loads(SPLITS_PATH.read_text())
 
@@ -135,11 +135,11 @@ def main() -> None:
     X_test = test_df[feature_cols].values.astype(np.float32)
     y_test = test_df["label"].values
 
-    def _make_pipeline(clf: XGBClassifier) -> Pipeline:
+    def _make_pipeline(clf: XGBClassifier):
         return Pipeline([("passthrough", FunctionTransformer()), ("clf", clf)])
 
     def _train_xgb(X_tr: np.ndarray, y_tr: np.ndarray,
-                   X_va: np.ndarray, y_va: np.ndarray, max_depth: int) -> XGBClassifier:
+                   X_va: np.ndarray, y_va: np.ndarray, max_depth: int):
         clf = XGBClassifier(
             max_depth=max_depth,
             n_estimators=500,
@@ -155,13 +155,13 @@ def main() -> None:
         clf.fit(X_tr, y_tr, eval_set=[(X_va, y_va)], verbose=False)
         return clf
 
-    def _prob(clf: XGBClassifier, X: np.ndarray) -> np.ndarray:
+    def _prob(clf: XGBClassifier, X: np.ndarray):
         return clf.predict_proba(X)[:, 1]
 
-    def _serializable(r: dict) -> dict:
+    def _serializable(r: dict):
         return {k: (list(v) if isinstance(v, tuple) else v) for k, v in r.items()}
 
-    def _save_importance_csv(clf: XGBClassifier, name: str) -> None:
+    def _save_importance_csv(clf: XGBClassifier, name: str):
         imp = clf.feature_importances_
         rows = sorted(
             [{"feature": f, "gain_importance": float(imp[i])}
@@ -170,7 +170,7 @@ def main() -> None:
         )
         pd.DataFrame(rows).to_csv(RESULTS_DIR / f"importance_{name}.csv", index=False)
 
-    print("\nTuning max_depth...")
+    print("\nTuning max_depth")
     best_depth, best_acc, clf_unified = None, -1.0, None
     for depth in DEPTH_GRID:
         clf = _train_xgb(X_train, y_train, X_val, y_val, depth)
@@ -179,9 +179,9 @@ def main() -> None:
         if acc > best_acc:
             best_acc, best_depth, clf_unified = acc, depth, clf
 
-    print(f"  → best max_depth={best_depth}")
+    print(f"  -> best max_depth={best_depth}")
 
-    print("\n=== Unified model ===")
+    print("\n---Unified model---")
     print("  top features (gain):")
     print_top_importance(clf_unified, feature_cols)
     unified_results = {}
@@ -194,7 +194,7 @@ def main() -> None:
     joblib.dump(_make_pipeline(clf_unified), RESULTS_DIR / "pipeline_unified.joblib")
     _save_importance_csv(clf_unified, "unified")
 
-    print("\n=== Per-bucket models (test set) ===")
+    print("\n---Per-bucket models (test set)---")
     bucket_results = []
     for lo, hi in VP_BUCKETS:
         label = bucket_label(lo, hi)
@@ -226,7 +226,7 @@ def main() -> None:
         joblib.dump(_make_pipeline(clf), RESULTS_DIR / f"pipeline_{label}.joblib")
         _save_importance_csv(clf, label)
 
-    print("\n=== Unified model sliced by VP bucket (test set) ===")
+    print("\n---Unified model sliced by VP bucket (test set)---")
     unified_slice_results = []
     for lo, hi in VP_BUCKETS:
         label = bucket_label(lo, hi)
@@ -248,8 +248,6 @@ def main() -> None:
     }
     out_path = RESULTS_DIR / "metrics.json"
     out_path.write_text(json.dumps(output, indent=2))
-    print(f"\nSaved to {RESULTS_DIR}/: metrics.json, pipeline_*.joblib, importance_*.csv")
-
 
 if __name__ == "__main__":
     main()

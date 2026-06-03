@@ -1,7 +1,7 @@
-"""agents.py — GreedyValuePlayer + BucketRouter + make_player
+"""agents.py: GreedyValuePlayer + BucketRouter + make_player
 
 Used by eval_online.py to wrap a trained sklearn Pipeline (LR or XGB,
-unified or per-bucket) in a one-step lookahead Catanatron player.
+unified or per-bucket) in a greedy one-step lookahead Catanatron player.
 """
 from __future__ import annotations
 
@@ -48,6 +48,7 @@ class BucketRouter:
             max_vp = 2
         
         self.total_picks += 1
+
         # Search for bucket which the game applies to (find the approate VP range)
         for low, high in VP_BUCKETS:
             if low <= max_vp < high:

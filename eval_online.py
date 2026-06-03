@@ -4,7 +4,7 @@ Plays 4 agents x 4 baselines x N games per pairing, both seats balanced,
 writes results/eval/online.json with Wilson CIs + loss-mode breakdown.
 
 Usage:
-    uv run python eval_online.py --pilot 25                  # pilot canary
+    uv run python eval_online.py --pilot 25                  # pilot/testing
     uv run python eval_online.py                             # full 9,600-game run
     uv run python eval_online.py --agents lr-unified         # subset
 """
@@ -279,15 +279,15 @@ def write_partial(results_so_far):
 def main():
     # Argumment commands
     parser = argparse.ArgumentParser(description="Phase 4 online evaluation runner.")
-    parser.add_argument("--n", type=int, default=N_PER_PAIRING,
-                        help=f"Games per pairing (default: {N_PER_PAIRING}).")
-    parser.add_argument("--workers", type=int, default=DEFAULT_WORKERS,
-                        help=f"Worker processes (default: {DEFAULT_WORKERS}).")
-    parser.add_argument("--pilot", type=int, default=None,
-                        help="If set, run only the first pairing with this many games.")
+    # Games per pairing (default: {N_PER_PAIRING}).
+    parser.add_argument("--n", type=int, default=N_PER_PAIRING)
+    # Worker processes (default: {DEFAULT_WORKERS}).
+    parser.add_argument("--workers", type=int, default=DEFAULT_WORKERS)
+    # If set, run only the first pairing with this many games.
+    parser.add_argument("--pilot", type=int, default=None)
+    # Comma-separated subset of agent names.
     parser.add_argument("--agents", type=str,
-                        default=",".join(AGENT_FAMILIES.keys()),
-                        help="Comma-separated subset of agent names.")
+                        default=",".join(AGENT_FAMILIES.keys()))
     args = parser.parse_args()
 
     agent_list = [a.strip() for a in args.agents.split(",") if a.strip()]
@@ -327,12 +327,6 @@ def main():
                 f"[{agg['wilson_lo']:.3f}, {agg['wilson_hi']:.3f}]",
                 file=sys.stderr,
             )
-            if agg["truncation_rate"] > TRUNCATION_ALARM:
-                print(
-                    f"[WARN] {label} truncation_rate={agg['truncation_rate']:.3f} "
-                    f"exceeds alarm threshold {TRUNCATION_ALARM}",
-                    file=sys.stderr,
-                )
 
     if args.pilot is None:
         os.replace(PARTIAL_PATH, FINAL_PATH)

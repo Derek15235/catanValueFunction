@@ -1,5 +1,5 @@
 """
-Features (6 extractors → 92 named columns):
+Features (6 extractors -> 92 named columns):
     player_features           17  keys  (P0_/P1_ prefixes)
     resource_hand_features    23  keys  (P0_*_IN_HAND / P1_*_IN_HAND)
     game_features_compat       8  keys  (BANK_*, IS_*)

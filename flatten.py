@@ -1,4 +1,4 @@
-"""flatten.py — Flatten per-game parquet files into a single dataset file.
+"""flatten.py: Flatten per-game parquet files into a single dataset file.
 
 Reads data/raw/<game_id>.parquet files, concatenates them into a single
 parquet file at out_path, and generates splits.json (80/10/10 by game_id,
@@ -6,7 +6,7 @@ reproducible).
 
 Public API:
     SPLIT_SEED              int  — fixed seed for deterministic splits
-    build_splits(game_ids)  list[str] → dict[str,list[str]] — 80/10/10 by game_id
+    build_splits(game_ids)  list[str] -> dict[str,list[str]] — 80/10/10 by game_id
     assert_no_overlap(splits) — raises AssertionError if any id is in two splits
     flatten_run(...)        — orchestrates the full flatten pipeline; returns summary
 """
@@ -168,17 +168,17 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(description="Flatten raw per-game parquet files into a single dataset file.")
+    # Directory of per-game parquet files (default: data/raw)
     parser.add_argument(
-        "--raw-dir", type=Path, default=Path("data/raw"),
-        help="Directory of per-game parquet files (default: data/raw)"
+        "--raw-dir", type=Path, default=Path("data/raw")
     )
+    # Output parquet file (default: data/snapshots.parquet)
     parser.add_argument(
-        "--out-file", type=Path, default=Path("data/snapshots.parquet"),
-        help="Output parquet file (default: data/snapshots.parquet)"
+        "--out-file", type=Path, default=Path("data/snapshots.parquet")
     )
+    # Where to write splits.json (default: out_file.parent)
     parser.add_argument(
-        "--data-dir", type=Path, default=None,
-        help="Where to write splits.json (default: out_file.parent)"
+        "--data-dir", type=Path, default=None
     )
     args = parser.parse_args()
     result = flatten_run(

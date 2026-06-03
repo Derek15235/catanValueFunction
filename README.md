@@ -50,7 +50,28 @@ For online evaluation, each trained model is wrapped in a greedy one-step lookah
 - Logistic regression assumes independent observations and low multicollinearity, neither of which strictly holds for snapshots drawn from the same game.
 
 ## Team
-George Weiksner, Anaya Shintre, and Derek Jain
+Anaya Shintre and Derek Jain
+
+## Figures
+
+The report uses figures produced by three different scripts. CONTEXT.md (Phase 5) intentionally relaxes WRT-02's strict "all figures by figures.py end-to-end" reading because the existing reliability and PCA renderers are already wired into other scripts.
+
+| Figure (label in report)        | Script                | Output path                                              |
+|---------------------------------|-----------------------|----------------------------------------------------------|
+| Reliability diagrams (FIG-04)   | `eval.py`             | `results/eval/figures/reliability_per_bucket.png`        |
+|                                 |                       | `results/eval/figures/reliability_unified_sliced.png`    |
+| ROC overlay (FIG-11)            | `figures.py`          | `results/figures/fig_roc.pdf`                            |
+| Accuracy by VP bucket (FIG-02)  | `figures.py`          | `results/figures/fig02_accuracy.pdf`                     |
+| Online win rates (FIG-07)       | `figures.py`          | `results/figures/fig07_online.pdf`                       |
+| PCA projections (FIG-06)        | `pca_analysis.py`     | `results/pca/pca_by_phase.png` (and two siblings)        |
+
+To regenerate every figure from a clean clone after running the data + training pipeline:
+
+```bash
+uv run python eval.py           # reliability PNGs
+uv run python pca_analysis.py   # PCA PNGs
+uv run python figures.py        # new figure PDFs
+```
 
 ## References
 
